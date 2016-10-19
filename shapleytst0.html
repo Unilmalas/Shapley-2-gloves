@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<body>
+
+	<p>permutations on array, marginal contributions and Shapley-Shubik power index for 2-glove-game</p>
+	Glove distribution (l and r): <input type="text" id="gloves" value="lllr">
+	<button onclick="shapley()">calc</button>
+
+	<p id="demo"></p>
+
+		<script>
+
+			function permutator(inputArr) { // permutations taken from http://stackoverflow.com/questions/9960908/permutations-in-javascript
+			  var results = [];
+
+			  function permute(arr, memo) {
+				var cur, memo = memo || []; // initializes array memo, either memo is given or it is assigned an empty array
+
+				for (var i = 0; i < arr.length; i++) {
+				  cur = arr.splice(i, 1); // at position i remove 1 item
+				  if (arr.length === 0) {
+					results.push(memo.concat(cur)); // memo and cur concatenated
+				  }
+				  permute(arr.slice(), memo.concat(cur)); // slice() method returns the selected elements in an array, as a new array object
+				  arr.splice(i, 0, cur[0]);
+				}
+				return results;
+			  }
+			  return permute(inputArr);
+			}
+
+			function fact(x) { // rough and dirty
+				if(x<=0 || x>100) return -1;
+				if(x>1) return x*fact(x-1)
+				else return 1;
+			}
+
+			// Shapley power index for 2-gloves game
+			function shapley() {
+				var inputstr = document.getElementById("gloves").value;
+				var inputmap = inputstr.split("");
+				var para = document.createElement("P");
+				var t, rho = [];
+				var clen = inputmap.length;
+				var carr = [];
+				for (var i = 1; i <= clen; i++) {
+					carr.push(i);
+				}
+				myarr = permutator(carr);
+				
+				var output = "";
+				var valstr = "";
+				var valstri = "";
+				var mc = 0, mci = 0, linetot = 0; // marginal costs and player contribution
+				var lastplayer = myarr[0][0];
+				var plrtot = 0;
+				var fclen = fact(clen);
+
+				for(i=0;i<fclen;i++) {
+					output = myarr[i];
+					for(j=0;j<(clen+1);j++) {
+						rho = myarr[i].slice(0, j);
+						output += ' ' + rho;
+						valstr = "";
+						valstri = "";
+						for(k=0;k<j;k++) {
+							valstr += inputmap[rho[k]-1]; // v(rho) value of current coalition
+							if(k>0) valstri += inputmap[rho[k]-1]; // v(rho / {i}) value of coalition less first player
+						}
+						output += ': ' + valstr;
+						//console.log(valstr.includes("l") + ' : ' + valstr.includes("r") + ' : ' + mc);
+						if(valstr.includes("l") && valstr.includes("r")) { // value of current coalition
+							mc = 1;
+							//console.log(valstr + ' ' + mc);
+						}
+						if(valstri.includes("l") && valstri.includes("r")) { // value of coalition less first player
+							mci = 1;
+						}
+						//console.log(valstr + ' v: ' + mc + ' : ' + valstri + ' vi: ' + mci);
+						linetot += mc - mci; // add to player
+						mc = 0;
+						mci = 0;
+					}
+					output += ' v: ' + linetot;
+					plrtot += linetot;
+					if(lastplayer != myarr[Math.min(i+1, fclen-1)][0] || i==(fclen-1)) {
+						lastplayer = myarr[Math.min(i+1, fclen-1)][0];
+						output += ' plr total: ' + plrtot;
+						plrtot = 0;
+					}
+					mc = 0;
+					mci = 0;
+					linetot = 0;
+					t = document.createTextNode(output);
+					output = "";
+					para.appendChild(t);
+					document.body.appendChild(para);
+					para = document.createElement("P"); // appends at the form-end: gets longer with each run...
+				}
+			}
+
+		</script>
+
+	</body>
+</html>
