@@ -3,6 +3,7 @@
 	<body>
 
 	<p>permutations on array, marginal contributions and Shapley-Shubik power index for 2-glove-game</p>
+	<input type="checkbox" id="sumOut" value="sum"> Sum for each player only<br>
 	Glove distribution (l and r): <input type="text" id="gloves" value="lllr">
 	<button onclick="shapley()">calc</button>
 
@@ -55,6 +56,8 @@
 				var lastplayer = myarr[0][0];
 				var plrtot = 0;
 				var fclen = fact(clen);
+				
+				var sumoponly = document.getElementById("sumOut").checked;
 
 				for(i=0;i<fclen;i++) {
 					output = myarr[i];
@@ -87,15 +90,24 @@
 						lastplayer = myarr[Math.min(i+1, fclen-1)][0];
 						output += ' plr total: ' + plrtot;
 						plrtot = 0;
+						if(sumoponly) {
+							t = document.createTextNode(output);
+							output = "";
+							para.appendChild(t);
+							document.body.appendChild(para);
+							para = document.createElement("P");
+						}
 					}
 					mc = 0;
 					mci = 0;
 					linetot = 0;
-					t = document.createTextNode(output);
+					if(!sumoponly) {
+						t = document.createTextNode(output);
+						para.appendChild(t);
+						document.body.appendChild(para);
+						para = document.createElement("P"); // appends at the form-end: gets longer with each run...
+					}
 					output = "";
-					para.appendChild(t);
-					document.body.appendChild(para);
-					para = document.createElement("P"); // appends at the form-end: gets longer with each run...
 				}
 			}
 
