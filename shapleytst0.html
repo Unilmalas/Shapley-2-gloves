@@ -10,13 +10,10 @@
 	<p id="demo"></p>
 
 		<script>
-
 			function permutator(inputArr) { // permutations taken from http://stackoverflow.com/questions/9960908/permutations-in-javascript
-			  var results = [];
-
+			  var results = [];				// returns array of permuted arrays
 			  function permute(arr, memo) {
 				var cur, memo = memo || []; // initializes array memo, either memo is given or it is assigned an empty array
-
 				for (var i = 0; i < arr.length; i++) {
 				  cur = arr.splice(i, 1); // at position i remove 1 item
 				  if (arr.length === 0) {
@@ -29,64 +26,61 @@
 			  }
 			  return permute(inputArr);
 			}
-
-			function fact(x) { // rough and dirty
+			function fact(x) { // rough and dirty factorial
 				if(x<=0 || x>100) return -1;
 				if(x>1) return x*fact(x-1)
 				else return 1;
 			}
-
 			// Shapley power index for 2-gloves game
 			function shapley() {
-				var inputstr = document.getElementById("gloves").value;
-				var inputmap = inputstr.split("");
+				var inputstr = document.getElementById("gloves").value; // get string of glove distribution, e.g. llrrr
+				var inputmap = inputstr.split(""); // convert string to array
 				var para = document.createElement("P");
-				var t, rho = [];
-				var clen = inputmap.length;
+				var t, rho = []; // rho contains coalition up to current position in permutation
+				var clen = inputmap.length; // length of input string = number of players
 				var carr = [];
-				for (var i = 1; i <= clen; i++) {
+				for (var i = 0; i < clen; i++) { // create player position array
 					carr.push(i);
 				}
-				myarr = permutator(carr);
+				var myarr = permutator(carr); // all permutations of player positions are stored in myarr: [permut][playerpos]
 				
 				var output = "";
 				var valstr = "";
 				var valstri = "";
 				var mc = 0, mci = 0, linetot = 0; // marginal costs and player contribution
-				var lastplayer = myarr[0][0];
+				var lastplayer = myarr[0][0]; // actually the player at the first position, but used to check for last addition to coalition
 				var plrtot = 0;
-				var fclen = fact(clen);
+				var fclen = fact(clen);  // number of permutations
 				
-				var sumoponly = document.getElementById("sumOut").checked;
-
-				for(i=0;i<fclen;i++) {
+				var sumoponly = document.getElementById("sumOut").checked; // only show sums?
+				for(i=0; i<fclen; i++) { // all permutations of player positions
 					output = myarr[i];
-					for(j=0;j<(clen+1);j++) {
-						rho = myarr[i].slice(0, j);
+					for(j=0; j<(clen+1); j++) { // all players at current permutation
+						rho = myarr[i].slice(0, j); // coalition up to current position in permutation
 						output += ' ' + rho;
 						valstr = "";
 						valstri = "";
-						for(k=0;k<j;k++) {
-							valstr += inputmap[rho[k]-1]; // v(rho) value of current coalition
-							if(k>0) valstri += inputmap[rho[k]-1]; // v(rho / {i}) value of coalition less first player
+						for(k=0; k<j; k++) { // loop over current coalition
+							valstr += inputmap[rho[k]]; // v(rho) value of current coalition
+							if(k>0) valstri += inputmap[rho[k]]; // v(rho / {i}) value of coalition less first player
 						}
 						output += ': ' + valstr;
 						//console.log(valstr.includes("l") + ' : ' + valstr.includes("r") + ' : ' + mc);
 						if(valstr.includes("l") && valstr.includes("r")) { // value of current coalition
-							mc = 1;
+							mc = 1; // marginal contribution
 							//console.log(valstr + ' ' + mc);
 						}
 						if(valstri.includes("l") && valstri.includes("r")) { // value of coalition less first player
-							mci = 1;
+							mci = 1; // marginal contribution
 						}
 						//console.log(valstr + ' v: ' + mc + ' : ' + valstri + ' vi: ' + mci);
-						linetot += mc - mci; // add to player
+						linetot += mc - mci; // add to player difference between margina contribution = value added
 						mc = 0;
 						mci = 0;
 					}
 					output += ' v: ' + linetot;
 					plrtot += linetot;
-					if(lastplayer != myarr[Math.min(i+1, fclen-1)][0] || i==(fclen-1)) {
+					if(lastplayer != myarr[Math.min(i+1, fclen-1)][0] || i==(fclen-1)) { // at the end of current player or end of permutations
 						lastplayer = myarr[Math.min(i+1, fclen-1)][0];
 						output += ' plr total: ' + plrtot;
 						plrtot = 0;
@@ -110,7 +104,6 @@
 					output = "";
 				}
 			}
-
 		</script>
 
 	</body>
